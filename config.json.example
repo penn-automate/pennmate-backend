@@ -1,0 +1,9 @@
+{
+  "firebase": "../firebase.json",
+  "credential": [
+    {
+      "username": "USERNAME_HERE",
+      "password": "PASSWORD_HERE"
+    }
+  ]
+}
