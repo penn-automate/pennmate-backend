@@ -1,4 +1,18 @@
 <?php
+declare(strict_types=1);
+function validate_credential(array $credentials): bool
+{
+    if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
+        $user = $_SERVER['PHP_AUTH_USER'];
+        $pass = $_SERVER['PHP_AUTH_PW'];
+
+        foreach ($credentials as $cred)
+            if ($user === $cred['username'] && $pass === $cred['password'])
+                return true;
+    }
+    return false;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Allow: POST");
     http_response_code(405);
@@ -12,10 +26,7 @@ if (empty($config) || empty($config['credential']) || empty($config['firebase'])
     exit(1);
 }
 
-$cred = $config['credential'][0];
-
-if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])
-    || $_SERVER['PHP_AUTH_USER'] !== $cred['username'] || $_SERVER['PHP_AUTH_PW'] !== $cred['password']) {
+if (validate_credential($config['credential'])) {
     header('WWW-Authenticate: Basic realm="Penn Automate"');
     http_response_code(401);
     exit(1);
@@ -30,12 +41,88 @@ if (empty($_POST) || !isset($_POST['section_id_normalized']) || !isset($_POST['s
     exit(1);
 }
 
-if ((isset($config['term']) && $_POST['term'] !== $config['term']) || $_POST['status'] !== 'O') {
-    exit;
-}
+// ----- Connect database -------
 
 $course_id = $_POST['section_id_normalized'];
 $course_id_topic = strtr($course_id, ['-' => '', ' ' => '%']);
+
+$db_config = $config['database'];
+$mysqli = new mysqli($db_config['host'], $db_config['username'], $db_config['password'], $db_config['db']);
+
+if ($mysqli->connect_errno) {
+    error_log("Failed to connect to MySQL: (" . $mysqli->connect_errno . ") " . $mysqli->connect_error);
+    http_response_code(500);
+    exit(1);
+}
+
+// ----- Query duplicate from database -------
+
+if (!($stmt = $mysqli->prepare(
+    "SELECT COUNT(*) AS c FROM course_status_change WHERE " .
+    "section_id=? AND `status`=? AND `term`=? AND DATE_SUB(NOW(), INTERVAL 30 SECOND)<change_time"))) {
+    error_log("Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error);
+    http_response_code(500);
+    exit(1);
+}
+
+if (!$stmt->bind_param("ss",
+    $_POST['section_id_normalized'],
+    $_POST['status'],
+    $_POST['term'])) {
+    error_log("Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error);
+    http_response_code(500);
+    exit(1);
+}
+
+if (!$stmt->execute()) {
+    error_log("Execute failed: (" . $stmt->errno . ") " . $stmt->error);
+    http_response_code(500);
+    exit(1);
+}
+
+$count = 0;
+if (!$stmt->bind_result($count)) {
+    error_log("Binding output parameters failed: (" . $stmt->errno . ") " . $stmt->error);
+    http_response_code(500);
+    exit(1);
+}
+$stmt->fetch();
+
+if ($count != 0) {
+    http_response_code(202);
+    exit;
+}
+
+// ----- Save to database -------
+
+if (!($stmt = $mysqli->prepare(
+    "INSERT INTO course_status_change (section_id, previous_status, `status`, term) VALUES (?,?,?,?)"))) {
+    error_log("Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error);
+    http_response_code(500);
+    exit(1);
+}
+
+if (!$stmt->bind_param("ssss",
+    $_POST['section_id_normalized'],
+    $_POST['previous_status'],
+    $_POST['status'],
+    $_POST['term'])) {
+    error_log("Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error);
+    http_response_code(500);
+    exit(1);
+}
+
+if (!$stmt->execute()) {
+    error_log("Execute failed: (" . $stmt->errno . ") " . $stmt->error);
+    http_response_code(500);
+    exit(1);
+}
+
+// ------------------------
+
+if ((isset($config['term']) && $_POST['term'] !== $config['term']) || $_POST['status'] !== 'O') {
+    exit;
+}
 
 error_log($course_id);
 exit;

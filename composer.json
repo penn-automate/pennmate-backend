@@ -1,6 +1,7 @@
 {
-    "require": {
-        "kreait/firebase-php": "^4.20",
-        "ext-json": "*"
-    }
+  "require": {
+    "kreait/firebase-php": "^4.20",
+    "ext-json": "*",
+    "ext-mysqli": "*"
+  }
 }
