@@ -25,21 +25,20 @@ if (empty($_POST)) {
     $_POST = json_decode(file_get_contents('php://input'), true);
 }
 
-if (empty($_POST) || !isset($_POST['course_section']) || !isset($_POST['status'])) {
+if (empty($_POST) || !isset($_POST['section_id_normalized']) || !isset($_POST['status']) || !isset($_POST['term'])) {
     http_response_code(400);
     exit(1);
 }
 
-if ($_POST['status'] !== 'O') {
+if ((isset($config['term']) && $_POST['term'] !== $config['term']) || $_POST['status'] !== 'O') {
     exit;
 }
 
-$course_id = $_POST['course_section'];
-$course_id_topic = str_replace(' ', '%', $course_id);
-$course_id_readable =
-    substr($course_id, 0, 4) . '-'
-    . substr($course_id, 4, 3) . '-'
-    . substr($course_id, 7, 3);
+$course_id = $_POST['section_id_normalized'];
+$course_id_topic = strtr($course_id, ['-' => '', ' ' => '%']);
+
+error_log($course_id);
+exit;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -52,7 +51,7 @@ $firebase = (new Kreait\Firebase\Factory)
 $messaging = $firebase->getMessaging();
 $message = Kreait\Firebase\Messaging\CloudMessage::withTarget('topic', $course_id_topic)
     ->withNotification(
-        Kreait\Firebase\Messaging\Notification::create($course_id_readable, 'The course opens just now.'))
+        Kreait\Firebase\Messaging\Notification::create($course_id, 'The course opens just now.'))
     ->withAndroidConfig(
         Kreait\Firebase\Messaging\AndroidConfig::fromArray(['ttl' => '600s', 'priority' => 'high']));
 $messaging->send($message);
