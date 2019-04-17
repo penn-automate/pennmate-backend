@@ -26,7 +26,7 @@ if (empty($config) || empty($config['credential']) || empty($config['firebase'])
     exit(1);
 }
 
-if (validate_credential($config['credential'])) {
+if (!validate_credential($config['credential'])) {
     header('WWW-Authenticate: Basic realm="Penn Automate"');
     http_response_code(401);
     exit(1);
@@ -65,7 +65,7 @@ if (!($stmt = $mysqli->prepare(
     exit(1);
 }
 
-if (!$stmt->bind_param("ss",
+if (!$stmt->bind_param("sss",
     $_POST['section_id_normalized'],
     $_POST['status'],
     $_POST['term'])) {
@@ -95,6 +95,7 @@ if ($count != 0) {
 
 // ----- Save to database -------
 
+unset($stmt);
 if (!($stmt = $mysqli->prepare(
     "INSERT INTO course_status_change (section_id, previous_status, `status`, term) VALUES (?,?,?,?)"))) {
     error_log("Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error);
@@ -123,9 +124,6 @@ if (!$stmt->execute()) {
 if ((isset($config['term']) && $_POST['term'] !== $config['term']) || $_POST['status'] !== 'O') {
     exit;
 }
-
-error_log($course_id);
-exit;
 
 require __DIR__ . '/../vendor/autoload.php';
 
