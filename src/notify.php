@@ -103,6 +103,10 @@ if (!($stmt = $mysqli->prepare(
     exit(1);
 }
 
+if (empty($_POST['previous_status'])) {
+    $_POST['previous_status'] = null;
+}
+
 if (!$stmt->bind_param("ssss",
     $_POST['section_id_normalized'],
     $_POST['previous_status'],
