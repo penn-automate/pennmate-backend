@@ -104,7 +104,7 @@ if (!($stmt = $mysqli->prepare(
 }
 
 if (empty($_POST['previous_status'])) {
-    $_POST['previous_status'] = null;
+    $_POST['previous_status'] = 'X';
 }
 
 if (!$stmt->bind_param("ssss",
