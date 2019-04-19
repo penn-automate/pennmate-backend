@@ -22,7 +22,8 @@ if ($mysqli->connect_errno) {
 }
 
 if (!($stmt = $mysqli->prepare(
-    "SELECT `status`, change_time FROM course_status_change WHERE section_id=? ORDER BY id DESC LIMIT 1"))) {
+    "SELECT `status`, UNIX_TIMESTAMP(change_time) FROM course_status_change" .
+    " WHERE section_id=? ORDER BY id DESC LIMIT 1"))) {
     error_log("Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error);
     http_response_code(500);
     exit(1);
