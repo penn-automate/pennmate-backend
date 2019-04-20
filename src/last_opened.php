@@ -12,7 +12,8 @@ if (!isset($_GET['course'])) {
     exit(1);
 }
 
-$db_config = json_decode(file_get_contents('../config.json'), true)['database'];
+$config = json_decode(file_get_contents('../config.json'), true);
+$db_config = $config['database'];
 $mysqli = new mysqli($db_config['host'], $db_config['username'], $db_config['password'], $db_config['db']);
 
 if ($mysqli->connect_errno) {
@@ -23,7 +24,9 @@ if ($mysqli->connect_errno) {
 
 if (!($stmt = $mysqli->prepare(
     "SELECT `status`, UNIX_TIMESTAMP(change_time) FROM course_status_change" .
-    " WHERE section_id=? ORDER BY id DESC LIMIT 1"))) {
+    " WHERE section_id=?" .
+    (isset($config['term']) ? (" AND term='" . $mysqli->escape_string($config['term']) . "'") : '') .
+    " ORDER BY id DESC LIMIT 1"))) {
     error_log("Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error);
     http_response_code(500);
     exit(1);
