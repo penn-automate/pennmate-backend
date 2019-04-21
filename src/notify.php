@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit(1);
 }
 
-$config = json_decode(file_get_contents('../config.json'), true);
+$config = json_decode(file_get_contents(__DIR__ . '/../config.json'), true);
 
 if (empty($config) || empty($config['credential']) || empty($config['firebase'])) {
     http_response_code(500);
@@ -87,6 +87,7 @@ if (!$stmt->bind_result($count)) {
     exit(1);
 }
 $stmt->fetch();
+$stmt->close();
 
 if ($count != 0) {
     http_response_code(202);
@@ -122,6 +123,7 @@ if (!$stmt->execute()) {
     http_response_code(500);
     exit(1);
 }
+$stmt->close();
 
 // ------------------------
 
@@ -146,3 +148,4 @@ $message = Kreait\Firebase\Messaging\CloudMessage::withTarget('topic', $course_i
     ->withWebPushConfig(Kreait\Firebase\Messaging\WebPushConfig::fromArray(
         ['notification' => ['icon' => 'icon.png'], 'fcmOptions' => ['link' => 'https://pennintouch.apps.upenn.edu']]));
 $messaging->send($message);
+$mysqli->close();

@@ -21,7 +21,7 @@ foreach ($addition as $topic) {
     }
 }
 
-$config = json_decode(file_get_contents('../config.json'), true);
+$config = json_decode(file_get_contents(__DIR__ . '/../config.json'), true);
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -69,6 +69,7 @@ if (!$stmt->execute()) {
     http_response_code(500);
     exit(1);
 }
+$stmt->close();
 
 // ----- Calculate difference -------
 $result = $stmt->get_result();
@@ -114,6 +115,8 @@ if (!empty($addition)) {
             exit(1);
         }
     }
+
+    $stmt->close();
 }
 
 if (!empty($deletion)) {
@@ -138,4 +141,8 @@ if (!empty($deletion)) {
             exit(1);
         }
     }
+
+    $stmt->close();
 }
+
+$mysqli->close();

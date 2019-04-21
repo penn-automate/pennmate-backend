@@ -12,7 +12,7 @@ if (!isset($_GET['course'])) {
     exit(1);
 }
 
-$config = json_decode(file_get_contents('../config.json'), true);
+$config = json_decode(file_get_contents(__DIR__ . '/../config.json'), true);
 $db_config = $config['database'];
 $mysqli = new mysqli($db_config['host'], $db_config['username'], $db_config['password'], $db_config['db']);
 
@@ -54,11 +54,13 @@ if (!$stmt->bind_result($status, $change)) {
 }
 
 $stmt->fetch();
+$stmt->close();
 
 if ($status === 'O') {
     echo '-1';
 } else if ($status === 'C') {
     echo $change;
 }
+$mysqli->close();
 
 
