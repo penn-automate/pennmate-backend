@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
-function validate_credential(array $credentials): bool
+function validate_credential(array $credentials): int
 {
     if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
         $user = $_SERVER['PHP_AUTH_USER'];
         $pass = $_SERVER['PHP_AUTH_PW'];
 
-        foreach ($credentials as $cred)
+        foreach ($credentials as $index => $cred)
             if ($user === $cred['username'] && $pass === $cred['password'])
-                return true;
+                return $index;
     }
-    return false;
+    return -1;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -26,7 +26,7 @@ if (empty($config) || empty($config['credential']) || empty($config['firebase'])
     exit(1);
 }
 
-if (!validate_credential($config['credential'])) {
+if (($cred_index = validate_credential($config['credential'])) === -1) {
     header('WWW-Authenticate: Basic realm="Penn Automate"');
     http_response_code(401);
     exit(1);
@@ -90,7 +90,9 @@ $stmt->fetch();
 $stmt->close();
 
 if ($count != 0) {
-    http_response_code(202);
+    if ($cred_index > 0) {
+        http_response_code(202);
+    }
     exit;
 }
 
