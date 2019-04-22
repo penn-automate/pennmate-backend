@@ -69,7 +69,6 @@ if (!$stmt->execute()) {
     http_response_code(500);
     exit(1);
 }
-$stmt->close();
 
 // ----- Calculate difference -------
 $result = $stmt->get_result();
@@ -82,6 +81,8 @@ while ($row = $result->fetch_row()) {
         $deletion[] = $row[0];
     }
 }
+
+$stmt->close();
 
 foreach ($addition as $topic) {
     $messaging->subscribeToTopic($topic, $device);
