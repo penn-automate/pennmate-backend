@@ -42,7 +42,7 @@ if ($overwrite) {
     $rows = [];
     while ($row = $result->fetch_assoc()) {
         $rows[] = [
-            'id' => $row['section_id'],
+            'id' => str_replace(' ', '', $row['section_id']),
             'title' => $row['section_title'],
             'act' => $row['activity'],
             'inst' => json_decode($row['instructors']),
