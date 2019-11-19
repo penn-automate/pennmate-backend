@@ -62,5 +62,3 @@ if ($status === 'O') {
     echo $change;
 }
 $mysqli->close();
-
-

@@ -147,7 +147,10 @@ $message = Kreait\Firebase\Messaging\CloudMessage::withTarget('topic', $course_i
         Kreait\Firebase\Messaging\Notification::create($course_id, 'The course opens just now.'))
     ->withAndroidConfig(
         Kreait\Firebase\Messaging\AndroidConfig::fromArray(['ttl' => '600s', 'priority' => 'high']))
-    ->withWebPushConfig(Kreait\Firebase\Messaging\WebPushConfig::fromArray(
-        ['notification' => ['icon' => 'icon.png'], 'fcmOptions' => ['link' => 'https://pennintouch.apps.upenn.edu']]));
+    ->withWebPushConfig(Kreait\Firebase\Messaging\WebPushConfig::fromArray([
+        'headers' => ['TTL' => '600', 'Urgency' => 'high'],
+        'notification' => ['icon' => 'icon.png'],
+        'fcmOptions' => ['link' => 'https://pennintouch.apps.upenn.edu']
+    ]));
 $messaging->send($message);
 $mysqli->close();
