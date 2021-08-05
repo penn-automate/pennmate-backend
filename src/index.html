@@ -1,6 +1,18 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en-US">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Helping Penn students automating tasks away.">
+    <meta name="author" content="Hanbang Wang">
+    <title>Penn Automate</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/css/bootstrap.min.css"
+          integrity="sha512-usVBAd66/NpVNfBge19gws2j6JZinnca12rAe2l+d+QkLU9fiG02O1X8Q6hepIpr/EYKZvKx/I9WsnujJuOmBA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.2/js/bootstrap.min.js"
+            integrity="sha512-a6ctI6w1kg3J4dSjknHj3aWLEbjitAXAjLDRUxo2wyYmDFRcz2RJuQr5M3Kt8O/TtUSp8n2rAyaXYy1sjoKmrQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -8,13 +20,52 @@
     <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#045ea7">
     <meta name="msapplication-TileColor" content="#045ea7">
     <meta name="theme-color" content="#045ea7">
-    <title>Penn Automate</title>
 </head>
 <body>
-<h1>This page is currently under construction...</h1>
-<script type="text/javascript">
-    const h1 = document.getElementsByTagName('h1')[0];
-    setInterval(() => h1.style.color = '#' + Math.ceil(Math.random() * (16 ** 6)).toString(16).padStart(6, '0'), 150);
-</script>
+<div class="container text-center pt-5 col-xl-6 col-lg-8 mx-auto">
+    <header>
+        <div>
+            <img src="/assets/pennmate-deep.svg" alt="Pennmate Icon" width="100">
+            <p class="display-4">Penn Automate</p>
+            <p class="lead">A self-started project whose goal is to help Penn students automating tasks that are
+                usually repetitive or hard for humans.</p>
+        </div>
+    </header>
+    <main>
+        <div class="row justify-content-center g-3">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="pt-3 align-self-center">
+                        <img src="/assets/pennmate-notify-512px.png" style="max-height:120px" alt="Pennmate Notify">
+                    </div>
+                    <div class="card-body d-grid">
+                        <h5 class="card-title">Pennmate Notify</h5>
+                        <p class="card-text">When a course opens, you will be notified in real-time via push
+                            notification on your device.</p>
+                        <a type="button" class="btn btn-primary btn-lg" href="/notify.html">See Details</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="d-sm-block d-none pt-3">
+                        <div style="min-height:120px"></div>
+                    </div>
+                    <div class="card-body d-grid">
+                        <h5 class="card-title">Pennmate Course Plan</h5>
+                        <p class="card-text">Plan your entire schedule intelligently via customizable constraints.</p>
+                        <div style="height: max-content"></div>
+                        <button type="button" class="btn btn-secondary btn-lg" disabled>In Development</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="border-top pt-2 mt-5">
+        <p>View Project Source Code on <a href="https://github.com/penn-automate">Github</a></p>
+        <p class="fw-light">&copy; 2019-2021, <a class="text-decoration-none" href="mailto:contact@pennmate.com">Penn
+            Automate Project</a></p>
+    </footer>
+</div>
 </body>
 </html>
