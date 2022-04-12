@@ -25,17 +25,14 @@ $config = json_decode(file_get_contents(__DIR__ . '/../config.json'), true);
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$serviceAccount = Kreait\Firebase\ServiceAccount::fromJsonFile($config['firebase']);
-
 $firebase = (new Kreait\Firebase\Factory)
-    ->withServiceAccount($serviceAccount)
-    ->create();
+    ->withServiceAccount($config['firebase']);
 
-$messaging = $firebase->getMessaging();
+$messaging = $firebase->createMessaging();
 $message = Kreait\Firebase\Messaging\CloudMessage::withTarget('token', $device);
 try {
     $messaging->validate($message);
-} catch (\Kreait\Firebase\Exception\MessagingException $e) {
+} catch (\Kreait\Firebase\Exception\FirebaseException $e) {
     http_response_code($e->getCode());
     echo $e->getMessage();
     exit(1);

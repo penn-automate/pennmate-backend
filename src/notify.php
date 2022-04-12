@@ -58,7 +58,7 @@ if ($mysqli->connect_errno) {
 // ----- Query duplicate from database -------
 
 if (!($stmt = $mysqli->prepare(
-    "SELECT COUNT(*) AS c FROM course_status_change WHERE " .
+    "SELECT COUNT(*) AS c FROM course_status_change_new WHERE " .
     "section_id=? AND `status`=? AND `term`=? AND DATE_SUB(NOW(), INTERVAL 30 SECOND)<change_time"))) {
     error_log("Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error);
     http_response_code(500);
@@ -100,7 +100,7 @@ if ($count != 0) {
 
 unset($stmt);
 if (!($stmt = $mysqli->prepare(
-    "INSERT INTO course_status_change (section_id, previous_status, `status`, term) VALUES (?,?,?,?)"))) {
+    "INSERT INTO course_status_change_new (section_id, previous_status, `status`, term) VALUES (?,?,?,?)"))) {
     error_log("Prepare failed: (" . $mysqli->errno . ") " . $mysqli->error);
     http_response_code(500);
     exit(1);
@@ -136,13 +136,10 @@ if ((isset($config['term']) && $_POST['term'] !== $config['term']) || $_POST['st
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$serviceAccount = Kreait\Firebase\ServiceAccount::fromJsonFile($config['firebase']);
-
 $firebase = (new Kreait\Firebase\Factory)
-    ->withServiceAccount($serviceAccount)
-    ->create();
+    ->withServiceAccount($config['firebase']);
 
-$messaging = $firebase->getMessaging();
+$messaging = $firebase->createMessaging();
 $message = Kreait\Firebase\Messaging\CloudMessage::withTarget('topic', $course_id_topic)
     ->withNotification(
         Kreait\Firebase\Messaging\Notification::create($course_id, 'The course opens just now.'))
@@ -153,4 +150,7 @@ $message = Kreait\Firebase\Messaging\CloudMessage::withTarget('topic', $course_i
         'notification' => ['icon' => 'icon.png'],
         'fcmOptions' => ['link' => 'https://pennintouch.apps.upenn.edu']
     ]));
-$messaging->send($message);
+try {
+    $messaging->send($message);
+} catch (\Kreait\Firebase\Exception\FirebaseException $e) {
+}
