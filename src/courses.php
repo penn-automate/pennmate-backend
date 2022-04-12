@@ -28,7 +28,7 @@ if ($overwrite) {
         exit(1);
     }
 
-    $query = "SELECT section_id, section_title, activity, instructors FROM course_list";
+    $query = "SELECT section_id, section_title, activity, instructors FROM course_list_new";
     if (isset($config['term'])) {
         $query .= " WHERE term='" . $mysqli->escape_string($config['term']) . "'";
     }

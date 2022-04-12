@@ -6,7 +6,7 @@
       "password": "PASSWORD_HERE"
     }
   ],
-  "term": "2019C",
+  "term": "202230",
   "database": {
     "host": "localhost",
     "username": "DB_USER",

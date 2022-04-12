@@ -126,6 +126,7 @@ if (!$stmt->execute()) {
     exit(1);
 }
 $stmt->close();
+$mysqli->close();
 
 // ------------------------
 
@@ -153,4 +154,3 @@ $message = Kreait\Firebase\Messaging\CloudMessage::withTarget('topic', $course_i
         'fcmOptions' => ['link' => 'https://pennintouch.apps.upenn.edu']
     ]));
 $messaging->send($message);
-$mysqli->close();
