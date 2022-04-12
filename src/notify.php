@@ -36,16 +36,14 @@ if (empty($_POST)) {
     $_POST = json_decode(file_get_contents('php://input'), true);
 }
 
-if (empty($_POST) || !isset($_POST['section_id_normalized']) || !isset($_POST['status']) || !isset($_POST['term'])) {
+if (empty($_POST) || !isset($_POST['section_id']) || !isset($_POST['status']) || !isset($_POST['term'])) {
     http_response_code(400);
     exit(1);
 }
 
 // ----- Connect database -------
 
-$course_id = $_POST['section_id_normalized'];
-$course_id_topic = strtr($course_id, ['-' => '', ' ' => '%']);
-
+$course_id = $_POST['section_id'];
 $db_config = $config['database'];
 $mysqli = new mysqli($db_config['host'], $db_config['username'], $db_config['password'], $db_config['db']);
 
@@ -66,7 +64,7 @@ if (!($stmt = $mysqli->prepare(
 }
 
 if (!$stmt->bind_param("sss",
-    $_POST['section_id_normalized'],
+    $_POST['section_id'],
     $_POST['status'],
     $_POST['term'])) {
     error_log("Binding parameters failed: (" . $stmt->errno . ") " . $stmt->error);
@@ -111,7 +109,7 @@ if (empty($_POST['previous_status'])) {
 }
 
 if (!$stmt->bind_param("ssss",
-    $_POST['section_id_normalized'],
+    $_POST['section_id'],
     $_POST['previous_status'],
     $_POST['status'],
     $_POST['term'])) {
@@ -140,7 +138,7 @@ $firebase = (new Kreait\Firebase\Factory)
     ->withServiceAccount($config['firebase']);
 
 $messaging = $firebase->createMessaging();
-$message = Kreait\Firebase\Messaging\CloudMessage::withTarget('topic', $course_id_topic)
+$message = Kreait\Firebase\Messaging\CloudMessage::withTarget('topic', $course_id)
     ->withNotification(
         Kreait\Firebase\Messaging\Notification::create($course_id, 'The course opens just now.'))
     ->withAndroidConfig(
@@ -148,7 +146,7 @@ $message = Kreait\Firebase\Messaging\CloudMessage::withTarget('topic', $course_i
     ->withWebPushConfig(Kreait\Firebase\Messaging\WebPushConfig::fromArray([
         'headers' => ['TTL' => '600', 'Urgency' => 'high'],
         'notification' => ['icon' => 'icon.png'],
-        'fcmOptions' => ['link' => 'https://pennintouch.apps.upenn.edu']
+        'fcmOptions' => ['link' => 'https://courses.upenn.edu']
     ]));
 try {
     $messaging->send($message);
